@@ -1,5 +1,5 @@
 /* VidMark Studio server: serves the website + admin panel, saves changes instantly. No npm install needed. Node 16+ */
-const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto'),vm=require('vm');
+const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto'),vm=require('vm'),zlib=require('zlib');
 const ROOT=__dirname,PORT=process.env.PORT||3000,DATA=path.join(ROOT,'data'),MEDIA=path.join(ROOT,'media'),BK=path.join(DATA,'backups');
 [DATA,MEDIA,BK].forEach(d=>fs.mkdirSync(d,{recursive:true}));
 const CF=path.join(DATA,'content.json'),PF=path.join(DATA,'password.json'),MAX=1024*1024*1024;
@@ -16,8 +16,15 @@ const OK=new Set(['.jpg','.jpeg','.png','.webp','.gif','.mp4','.webm','.mov']);
 const json=(res,c,o)=>{res.writeHead(c,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(o))};
 const authed=req=>{const t=req.headers['x-token'],e=T.get(t);return !!e&&e>Date.now()};
 const body=(req,lim=8e6)=>new Promise((ok,no)=>{let b='',n=0;req.on('data',c=>{n+=c.length;if(n>lim){no(new Error('too big'));req.destroy()}else b+=c});req.on('end',()=>ok(b));req.on('error',no)});
+const MEDIA_EXT=new Set(['.jpg','.jpeg','.png','.webp','.gif','.mp4','.webm','.mov']),GZ_EXT=new Set(['.html','.js','.json','.css']),GZC=new Map();
 function sendFile(req,res,fp){fs.stat(fp,(e,st)=>{if(e||!st.isFile()){res.writeHead(404);return res.end('Not found')}
- const ext=path.extname(fp).toLowerCase(),h={'Content-Type':MIME[ext]||'application/octet-stream','Accept-Ranges':'bytes','X-Content-Type-Options':'nosniff','Cache-Control':ext==='.html'?'no-cache':'public, max-age=3600'},r=req.headers.range;
+ const ext=path.extname(fp).toLowerCase(),h={'Content-Type':MIME[ext]||'application/octet-stream','Accept-Ranges':'bytes','X-Content-Type-Options':'nosniff','Cache-Control':ext==='.html'?'no-cache':MEDIA_EXT.has(ext)?'public, max-age=604800':'public, max-age=3600'},r=req.headers.range;
+ /* gzip text files (index.html is ~190 KB -> ~45 KB on mobile networks); cached in memory per file version */
+ if(!r&&GZ_EXT.has(ext)&&st.size>1024&&/\bgzip\b/.test(String(req.headers['accept-encoding']||''))){
+  const key=fp+'|'+st.mtimeMs;let c=GZC.get(fp);
+  const send=buf=>{h['Content-Encoding']='gzip';h['Vary']='Accept-Encoding';h['Content-Length']=buf.length;res.writeHead(200,h);res.end(buf)};
+  if(c&&c.k===key)return send(c.b);
+  return fs.readFile(fp,(e2,d)=>{if(e2){res.writeHead(500);return res.end()}zlib.gzip(d,{level:6},(e3,z)=>{if(e3){res.writeHead(500);return res.end()}GZC.set(fp,{k:key,b:z});send(z)})})}
  if(r){const m=/bytes=(\d*)-(\d*)/.exec(r)||[];let s=m[1]?+m[1]:0,en=m[2]?+m[2]:st.size-1;if(en>=st.size)en=st.size-1;if(s>en){res.writeHead(416);return res.end()}
   h['Content-Range']=`bytes ${s}-${en}/${st.size}`;h['Content-Length']=en-s+1;res.writeHead(206,h);fs.createReadStream(fp,{start:s,end:en}).pipe(res)}
  else{h['Content-Length']=st.size;res.writeHead(200,h);fs.createReadStream(fp).pipe(res)}})}
