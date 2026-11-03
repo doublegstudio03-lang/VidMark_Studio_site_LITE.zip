@@ -6,7 +6,7 @@
 <meta property="og:title" content="VidMark Studio"><meta property="og:description" content="Premium video, brand and web design studio."><meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap"></noscript>
 <style>
 
 :root{--tx:#0d1130;--mu:#596083;--bl:#2bb5e8;--in:#4a35e0;--g:linear-gradient(115deg,#2bb5e8,#4a35e0);--gb:rgba(255,255,255,.42);--gbd:rgba(255,255,255,.75);--sh:0 30px 70px -30px rgba(50,60,150,.35);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -550,11 +550,53 @@ h1,h2,h3{font-weight:400}.hero h1{font-weight:400}.grad{font-weight:500}
 .hv-pp{position:absolute;z-index:2;right:calc(clamp(10px,1.6vw,20px) + 54px);bottom:clamp(10px,1.6vw,20px);width:44px;height:44px;border-radius:50%;border:1px solid var(--gbd);background:rgba(255,255,255,.6);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);cursor:pointer;display:grid;place-items:center;color:var(--tx);transition:transform .4s}
 .hv-pp:hover{transform:scale(1.08)}.hv-pp svg{grid-area:1/1;width:18px;height:18px;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .25s}
 .hv-pp .i-play{opacity:0;transform:scale(.4) rotate(-40deg)}.hv-pp.is-paused .i-play{opacity:1;transform:none}.hv-pp.is-paused .i-pause{opacity:0;transform:scale(.4) rotate(40deg)}
+
+/* ===== performance layer =====
+   Everything below is invisible on desktop; the phone rules swap the most expensive effects
+   (backdrop blur, filter blur, main-thread text animation) for cheap equivalents. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@supports(overflow:clip){html,body{overflow-x:clip}}
+a,button,.vc,.cc,.csc,.pc{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+/* animations of off-screen elements are paused from JS (class .pz) */
+.pz,.pz *,.pz::before,.pz::after,.pz *::before,.pz *::after{animation-play-state:paused!important}
+/* closed chat panel: skip painting / focus while hidden (fade-out preserved) */
+.vmc .vmc-p{visibility:hidden;transition:opacity .25s,transform .25s,visibility 0s linear .25s}
+.vmc.open .vmc-p{visibility:visible;transition:opacity .25s,transform .25s,visibility 0s}
+@media(max-width:900px),(hover:none){
+ /* 1. backdrop-filter forces a re-blur of everything behind it on every scroll frame */
+ .glass,.btn,.tag,.chips span,.fb,.ph,.ph-t,.cat.hc .live,.vmeta span,.vi,.vd,.vp,.cx-play,.cx-hint,.cx-gi span,.hv-snd,.hv-pp,.lbx,.lbn,.csf,.tm,.trust,.si.on,.gs,.cur2,.menu,.modal,.lb,.bv,.ptn i{-webkit-backdrop-filter:none;backdrop-filter:none}
+ nav.glass{-webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%)}
+ .glass{background:rgba(255,255,255,.58)}
+ .cap.glass{background:rgba(255,255,255,.74)}
+ .btn{background:rgba(255,255,255,.55)}
+ .menu{background:rgba(236,240,253,.97)}
+ .modal{background:rgba(236,240,253,.97)}
+ .lb{background:rgba(8,10,28,.95)}
+ .bv{background:rgba(8,10,28,.97)}
+ /* 2. reveal = opacity + transform only (filter:blur repaints every element on every frame) */
+ .rv,.rv.in{filter:none}
+ .rv{transition:opacity 1s,transform 1s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0s)}
+ #app.out{filter:none}
+ /* 3. main-thread animations / extra layers */
+ .grad{animation:none}
+ .pk li::before,.box li::before,.cpl span::before{animation:none}
+ .gs,.sv-pin .scs .sc{will-change:auto}
+ .fx{bottom:auto;height:100vh;height:100lvh}
+ #app{min-height:80vh;min-height:80svh}
+ .hv-glow{filter:none;opacity:.3;background:radial-gradient(closest-side,rgba(60,90,232,1),rgba(60,90,232,.7) 45%,rgba(60,90,232,0))}
+ .ptn i{width:240vmax;height:240vmax;margin:-120vmax 0 0 -120vmax;box-shadow:inset 0 0 0 2px rgba(255,255,255,.95),inset 0 0 90px 26px rgba(255,255,255,.85)}
+ .cx-stage::before,.vc.fit .vm::before,.vc.wide .vm::before{filter:blur(16px) saturate(1.15)}
+}
+@media(hover:none){
+ /* no hover on touch: drop permanent 3D layers and the spotlight overlay */
+ .vc .vm,.cc .cm{transform:none}
+ .gl::before{display:none}
+}
 </style></head>
 <body>
 
 <div class="fx" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-<nav class="glass" aria-label="Main"><a class="logo" href="#home" aria-label="VidMark Studio home"><img src="media/logo.png" alt="VidMark Studio"></a>
+<nav class="glass" aria-label="Main"><a class="logo" href="#home" aria-label="VidMark Studio home"><img src="media/logo.png" alt="VidMark Studio" width="296" height="82" decoding="async"></a>
 <div class="links" id="links"></div>
 <a class="btn pri ig" href="https://www.instagram.com/vidmark_studio?psln=OXk1bjk3d2FjNXJ2" target="_blank" rel="noopener">Contact Now <i>→</i></a><button class="bgr" id="bgr" aria-expanded="false" aria-label="Open menu"><span></span><span></span></button></nav>
 <div class="menu" id="menu" data-lenis-prevent aria-hidden="true"></div>
@@ -562,11 +604,12 @@ h1,h2,h3{font-weight:400}.hero h1{font-weight:400}.grad{font-weight:500}
 <div class="modal" id="md" role="dialog" aria-modal="true" aria-labelledby="mt" data-lenis-prevent><button class="btn mx" id="mc">Close ✕</button><div class="wrap" id="mb" style="padding-top:4rem"></div></div>
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Video player"><button class="lbx" id="lbx" aria-label="Close video">✕</button><button class="lbn p" id="lbp" aria-label="Previous video">←</button><video id="lbv" controls playsinline controlslist="nodownload"></video><img id="lbi" alt="" hidden><button class="lbn q" id="lbq" aria-label="Next video">→</button><div class="lbm"><small id="lbc"></small><b id="lbt"></b></div></div>
 <div class="bv" id="bv" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Brand case study" data-lenis-prevent><button class="lbx" id="bvx" aria-label="Close">✕</button><div class="bvw"><div class="bvi" id="bvi"></div><div class="bvt" id="bvt"></div></div></div>
-<footer><div class="wrap"><div class="ft glass"><div><img src="media/logo.png" alt="VidMark Studio"><p style="color:var(--mu);margin-top:1rem;max-width:30ch;font-size:.92rem;font-weight:300">Video editing, branding, web design and explainer videos.</p></div>
+<footer><div class="wrap"><div class="ft glass"><div><img src="media/logo.png" alt="VidMark Studio" loading="lazy" decoding="async"><p style="color:var(--mu);margin-top:1rem;max-width:30ch;font-size:.92rem;font-weight:300">Video editing, branding, web design and explainer videos.</p></div>
 <div><h5>Services</h5><ul id="fs"></ul></div><div><h5>Studio</h5><ul id="fp"></ul></div>
 <div><h5>Contact</h5><ul><li><a class="ig" href="#" target="_blank" rel="noopener">Instagram</a></li><li><a href="mailto:contact.vidmarkstudio@gmail.com">contact.vidmarkstudio@gmail.com</a></li><li><a href="tel:01783472152">01783472152</a></li><li>Location: Bangladesh</li></ul></div></div>
 <div class="cp"><span>© 2026 VidMark Studio. All rights reserved.</span><span>Founder: Meharab Mahin</span></div></div></footer>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>/* smooth-scroll library is only useful with a mouse wheel: phones scroll natively, so skip the download + its rAF loop */
+if(!matchMedia('(hover:none)').matches&&!matchMedia('(prefers-reduced-motion:reduce)').matches)document.write('<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"><\/script>')</script>
 <script>
 /* ===== DATA: edit here, no rebuild needed ===== */
 const SITE={instagram:"https://www.instagram.com/vidmark_studio?psln=OXk1bjk3d2FjNXJ2",email:"contact.vidmarkstudio@gmail.com",phone:"01783472152"};
@@ -781,16 +824,20 @@ const IMG={office:"media/image-10.jpg",team:"media/image-11.jpg"};
 /* ============================================== */
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],isV=m=>/\.(mp4|webm)$/i.test(m),rm=matchMedia('(prefers-reduced-motion:reduce)').matches,IG=SITE.instagram;
 const app=$('#app'),pad=n=>String(n).padStart(2,'0');
+/* one rAF-throttled scroll scheduler shared by every scroll effect (was 4 separate listeners) */
+const SCR=[];let _sq=0;const scrollFrame=()=>{_sq=0;for(let i=0;i<SCR.length;i++)SCR[i]()};
+const queueScroll=()=>{if(!_sq){_sq=1;requestAnimationFrame(scrollFrame)}};
+addEventListener('scroll',queueScroll,{passive:true});addEventListener('resize',queueScroll);
 const ig=(t,c='btn pri')=>`<a class="${c}" href="${IG}" target="_blank" rel="noopener">${t} <i>→</i></a>`;
 const hd=(tag,h,l,pre='')=>`<header class="phd"><div class="wrap">${pre}<span class="tag rv">${tag}</span><h1 class="rv" style="--d:.1s">${h}</h1><p class="lead rv" style="--d:.2s">${l}</p></div></header>`;
 const cta=(h='Let’s create something <span class="grad">exceptional.</span>')=>`<section class="sec"><div class="wrap"><div class="cta glass rv"><div class="gs sp px" data-s=".07" style="width:140px;height:140px;left:5%;top:12%"></div><div class="gs rg px" data-s="-.05" style="width:190px;height:190px;right:4%;bottom:6%"></div><span class="tag">Let’s work together</span><h2>${h}</h2><p class="lead">Tell us about your project on Instagram and we’ll get back to you.</p><div class="row">${ig('Contact Now','btn pri" style="padding:1.15rem 2.2rem;font-size:1.02rem')}<a class="btn" href="#contact">All contact options</a></div>${CI()}</div></div></section>`;
 const svcCard=(s,i)=>`<a class="sc glass rv" style="--d:${i*.08}s" href="#svc-${s.slug}"><span class="sci">${ICO[SVI[s.slug]]}</span><div><span class="n">${pad(i+1)}</span><h3>${s.name}</h3><p>${s.short}</p></div><b>Learn more →</b></a>`;
-const catCard=(c,i)=>`<a class="cc rv" style="--d:${(i%4)*.08}s" href="#work-${c.slug}"><div class="cm" style="background:${c.bg}">${c.cover?`<img src="${c.cover}" alt="${c.name}" loading="lazy" style="object-position:${c.pos||'top center'}">${c.vid?`<video src="${c.vid}" poster="${c.cover}" muted loop playsinline webkit-playsinline preload="none"></video>`:''}`:'<div class="gs sp"></div>'}</div><div class="cl"><small>0${i+1}</small><h3>${c.name}</h3><p>${c.desc}</p></div></a>`;
+const catCard=(c,i)=>`<a class="cc rv" style="--d:${(i%4)*.08}s" href="#work-${c.slug}"><div class="cm" style="background:${c.bg}">${c.cover?`<img src="${c.cover}" alt="${c.name}" loading="lazy" style="object-position:${c.pos||'top center'}">${c.vid?`<video data-src="${c.vid}" data-poster="${c.cover}" muted loop playsinline webkit-playsinline preload="none"></video>`:''}`:'<div class="gs sp"></div>'}</div><div class="cl"><small>0${i+1}</small><h3>${c.name}</h3><p>${c.desc}</p></div></a>`;
 const projs=c=>{const r=PROJECTS.filter(p=>p.cat===c.slug);return r.length?r:[1,2,3].map(n=>({cat:c.slug,title:`${c.name} — Project ${pad(n)}`,year:"2026",client:"Client name",services:c.name,desc:"Add your project here.",media:"",ph:1,bg:c.bg,overview:"",challenge:"",approach:"",work:"",result:""}))};
-const thumb=(p,i,v,sp=4,cs=0)=>`<button class="pc rv${v?' v':''}" data-k="${i}"${cs?' data-case="1"':''} style="--bgv:${p.bg};--d:${(i%3)*.1}s;--sp:${sp}" aria-label="Open ${p.title}"><div class="th">${p.media?(isV(p.media)?`<video src="${p.media}" muted loop playsinline preload="none"></video>`:`<img src="${p.media}" alt="${p.title}" loading="lazy">`):`<span class="ph-t">Placeholder</span><div class="gs sp" style="width:40%;aspect-ratio:1;right:8%;top:10%"></div>`}<div class="cap glass"><div><small>${p.cat} · ${p.year}</small><h3>${p.title}</h3></div><b>↗</b></div></div></button>`;
+const thumb=(p,i,v,sp=4,cs=0)=>`<button class="pc rv${v?' v':''}" data-k="${i}"${cs?' data-case="1"':''} style="--bgv:${p.bg};--d:${(i%3)*.1}s;--sp:${sp}" aria-label="Open ${p.title}"><div class="th">${p.media?(isV(p.media)?`<video data-src="${p.media}" muted loop playsinline preload="none"></video>`:`<img src="${p.media}" alt="${p.title}" loading="lazy">`):`<span class="ph-t">Placeholder</span><div class="gs sp" style="width:40%;aspect-ratio:1;right:8%;top:10%"></div>`}<div class="cap glass"><div><small>${p.cat} · ${p.year}</small><h3>${p.title}</h3></div><b>↗</b></div></div></button>`;
 let LIST=[],VL=[];
 const PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
-const vCard=(v,i,cl)=>(cl=cl||(v.fit?'fit':''),`<button class="vc rv${cl?' '+cl:''}" data-v="${i}" style="--d:${(i%4)*.08}s" aria-label="Open ${v.type==='img'?'image':'video'} ${i+1}"><div class="vm" style="--bg:url('${v.type==='img'?v.src:v.poster}')">${v.type==='img'?`<img src="${v.src}" alt="" loading="lazy">`:`<video src="${v.src}" poster="${v.poster}" muted loop playsinline preload="none"></video><span class="vp">${PLAY}</span>`}</div></button>`);
+const vCard=(v,i,cl)=>(cl=cl||(v.fit?'fit':''),`<button class="vc rv${cl?' '+cl:''}" data-v="${i}" style="--d:${(i%4)*.08}s" aria-label="Open ${v.type==='img'?'image':'video'} ${i+1}"><div class="vm" style="--bg:url('${v.type==='img'?v.src:v.poster}')">${v.type==='img'?`<img src="${v.src}" alt="" loading="lazy">`:`<video data-src="${v.src}" data-poster="${v.poster}" muted loop playsinline preload="none"></video><span class="vp">${PLAY}</span>`}</div></button>`);
 function vidPage(c){const V=VIDEOS[c.slug],sl=c.slug;VL=V.map(v=>({...v,cat:c.name}));
  const pop=CATS.filter(x=>VIDEOS[x.slug]),other=pop[(pop.findIndex(x=>x.slug===sl)+1)%pop.length];
  let grid;
@@ -816,13 +863,12 @@ const csStage=(src,alt,extra='')=>`<div class="cx-stage" style="--bg:url('${src}
 const csYtImg=()=>`<div class="cx-stage cx-ytbg" style="--bg:url('${ytThumb}')"><img src="${ytThumb}" alt="" loading="lazy" onerror="if(this.dataset.f){this.style.display='none'}else{this.dataset.f=1;this.src='${ytFall}'}"></div>`;
 function csCover(c){const m=c.media;
  if(m.kind==='img')return csStage(m.images[0].src,m.images[0].alt,' loading="lazy"');
- if(m.kind==='video')return `<div class="cx-stage" style="--bg:url('${m.poster}')"><img src="${m.poster}" alt="" loading="lazy"><video src="${m.src}" muted loop playsinline preload="none"></video></div><span class="cx-play"></span>`;
+ if(m.kind==='video')return `<div class="cx-stage" style="--bg:url('${m.poster}')"><img src="${m.poster}" alt="" loading="lazy"><video data-src="${m.src}" muted loop playsinline preload="none"></video></div><span class="cx-play"></span>`;
  if(m.kind==='yt')return csYtImg()+`<span class="cx-play"></span>`;
  return `<div class="cx-fb"><i class="gs sp" style="width:34%;aspect-ratio:1;right:6%;top:8%"></i><i class="gs rg" style="width:46%;aspect-ratio:1;right:-14%;bottom:-24%"></i><small>Promotional Documentary</small><b>${c.title}</b></div><span class="cx-play"></span>`}
 const csCard=(c,i,k)=>`<div class="cxw rv${c.sp===12?' f':''}" style="--sp:${c.sp};--d:${(k%3)*.1}s"><button class="csc glass${c.sp===12?' big':''}" data-i="${i}" aria-label="Open case study: ${c.title}"><div class="cx-th">${csCover(c)}</div><div class="cx-bd"><small>${c.eyebrow}</small><h3>${c.title}</h3><p class="sb">${c.sub}</p><p class="ds">${c.card}</p><div class="cx-chips">${c.chips.map(x=>`<span>${x}</span>`).join('')}</div><b class="more">View case study <i>→</i></b></div></button></div>`;
 const csGroup=(g,gi)=>`<div class="cx-grp" data-g="${g.k}"><div class="cx-gh rv"><div><small>${pad(gi+1)}</small><h2>${g.name}</h2></div><p>${g.lead}</p></div><div class="cx-grid">${CS.map((c,i)=>[c,i]).filter(([c])=>c.g===g.k).map(([c,i],k)=>csCard(c,i,k)).join('')}</div></div>`;
 const csPage=()=>hd('Case Studies','Stories behind <span class="grad">the work.</span>','A closer look at the challenge, our approach and the final result of selected projects.')+`<section class="sec" style="padding-top:20px"><div class="wrap"><div class="csf-bar rv" role="group" aria-label="Filter case studies"><button class="csf on" data-f="all" aria-pressed="true">All<b>${CS.length}</b></button>${CSG.map(g=>`<button class="csf" data-f="${g.k}" aria-pressed="false">${g.name}<b>${CS.filter(c=>c.g===g.k).length}</b></button>`).join('')}</div>${CSG.map(csGroup).join('')}</div></section>${cta()}`;
-function csBind(){$$('.csc').forEach(c=>{const v=c.querySelector('video');if(v){c.onmouseenter=()=>v.play().catch(()=>{});c.onmouseleave=()=>{v.pause();v.currentTime=0}}})}
 function csHero(c){const m=c.media;
  if(m.kind==='img'){const im=m.images[0];return `<div class="cx-hero"><div class="cx-stage" style="--bg:url('${im.src}')"><img src="${im.src}" alt="${im.alt}" style="width:min(100%,${Math.round(im.w*1.5)}px)"></div><button class="cx-zoom" data-zoom="0" aria-label="Enlarge image"></button><span class="cx-hint">Click to enlarge</span></div>`}
  if(m.kind==='video')return `<div class="cx-hero"><video src="${m.src}" poster="${m.poster}" controls playsinline preload="metadata"></video></div>`;
@@ -851,7 +897,7 @@ function csHTML(c,i){let n=0;const num=()=>pad(++n);
 const MQ=()=>{const w=["Video Editing","Brand Development","Website Design","SaaS Explainer Videos","Shorts & Reels","Documentary","Gaming Videos","Real Estate","UGC Content","Talking Head"].map(x=>`<span>${x}</span>`).join('');return `<div class="mq" aria-hidden="true"><div class="mqt">${w}${w}</div></div>`};
 const P={
 home:()=>`<header class="hero" id="home"><div class="gs sp px" data-s=".08" style="width:clamp(110px,17vw,250px);height:clamp(110px,17vw,250px);left:6%;top:20%"></div><div class="gs rg px" data-s="-.06" style="width:clamp(150px,24vw,340px);height:clamp(150px,24vw,340px);right:3%;top:16%;animation-delay:-3s"></div><div class="gs cu px" data-s=".12" style="width:clamp(70px,10vw,140px);height:clamp(70px,10vw,140px);left:14%;bottom:12%;animation-delay:-5s"></div><div class="gs cp px" data-s="-.1" style="width:clamp(50px,6vw,90px);height:clamp(130px,17vw,240px);right:13%;bottom:8%;rotate:24deg;animation-delay:-2s"></div><div class="gs sp px" data-s=".05" style="width:clamp(36px,4vw,64px);height:clamp(36px,4vw,64px);left:34%;top:15%;animation-delay:-7s"></div>
-<div class="wrap" style="position:relative;z-index:3"><div class="trust rv"><span class="tavs"><span class="tav" style="--i:1"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><img src="media/client-1.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="tav" style="--i:2"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><img src="media/client-2.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="tav" style="--i:3"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><img src="media/client-3.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="tav" style="--i:4"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><img src="media/client-4.jpg" alt="" loading="lazy" onerror="this.remove()"></span></span><span class="tn"><b class="trust-n" data-to="300">0+</b> Satisfied Clients</span></div><h1 class="rv" style="--d:.1s">Build Your Brand.<br><span class="grad">Elevate Your Business.</span></h1><p class="lead rv" style="--d:.25s">From shaping your brand to building your digital presence, we bring creative ideas and the right people together to help your business move forward.</p><div class="row rv" style="--d:.4s">${ig('Start a Project')}<a class="btn" href="#portfolio">View Portfolio <i>→</i></a></div><div class="team rv" style="--d:.45s"><span class="team-l">Our in-house team</span>${TEAM.map(t=>`<div class="tm"><span class="ci">${ICO[t[0]]}</span><b>${t[1]}</b><span>${t[2]}</span></div>`).join('')}</div><div class="hv rv" id="hv" style="--d:.5s"><div class="hv-glow"></div><div class="hv-stage" id="hvs"><video poster="media/hero-saas.jpg" autoplay muted loop playsinline webkit-playsinline preload="auto" aria-label="VidMark Studio SaaS explainer video"></video><button class="hv-pp" type="button" aria-label="Pause video"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.5-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z"/></svg></button><button class="hv-snd" type="button" aria-label="Turn sound on">🔇</button><button class="hv-pl" type="button" aria-label="Play video" hidden>▶</button></div></div>
+<div class="wrap" style="position:relative;z-index:3"><div class="trust rv"><span class="tavs"><span class="tav" style="--i:1"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><img src="media/client-1.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="tav" style="--i:2"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><img src="media/client-2.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="tav" style="--i:3"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><img src="media/client-3.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="tav" style="--i:4"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><img src="media/client-4.jpg" alt="" loading="lazy" onerror="this.remove()"></span></span><span class="tn"><b class="trust-n" data-to="300">0+</b> Satisfied Clients</span></div><h1 class="rv" style="--d:.1s">Build Your Brand.<br><span class="grad">Elevate Your Business.</span></h1><p class="lead rv" style="--d:.25s">From shaping your brand to building your digital presence, we bring creative ideas and the right people together to help your business move forward.</p><div class="row rv" style="--d:.4s">${ig('Start a Project')}<a class="btn" href="#portfolio">View Portfolio <i>→</i></a></div><div class="team rv" style="--d:.45s"><span class="team-l">Our in-house team</span>${TEAM.map(t=>`<div class="tm"><span class="ci">${ICO[t[0]]}</span><b>${t[1]}</b><span>${t[2]}</span></div>`).join('')}</div><div class="hv rv" id="hv" style="--d:.5s"><div class="hv-glow"></div><div class="hv-stage" id="hvs"><video poster="media/hero-saas.jpg" muted loop playsinline webkit-playsinline preload="none" aria-label="VidMark Studio SaaS explainer video"></video><button class="hv-pp" type="button" aria-label="Pause video"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.5-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z"/></svg></button><button class="hv-snd" type="button" aria-label="Turn sound on">🔇</button><button class="hv-pl" type="button" aria-label="Play video" hidden>▶</button></div></div>
 <div class="chips rv" style="--d:.55s">${SERVICES.map(s=>`<a href="#svc-${s.slug}"><span>${s.name}</span></a>`).join('')}</div></div></header>${MQ()}
 <section class="sv-pin" id="svpin"><div class="sv-stick"><div class="wrap"><div class="hd"><span class="tag rv">What we do</span><h2 class="rv">Four services, <span class="grad">one creative team.</span></h2></div><div class="scs">${SERVICES.map((s,i)=>svcCard(s,i).replace(' rv"','"').replace(/ style="--d:[^"]*"/,'')).join('')}</div></div></div></section>
 <section class="sec"><div class="wrap"><div class="hd"><span class="tag rv">Portfolio</span><h2 class="rv">Work across <span class="grad">every format.</span></h2><p class="lead rv">Explore our work by category, from short-form to documentaries.</p></div><div class="cats">${CATS.map(catCard).join('')}</div><div class="row rv"><a class="btn" href="#portfolio">Explore full portfolio <i>→</i></a></div></div></section>
@@ -893,11 +939,8 @@ function paint(r){app.innerHTML=r.html();document.title=(r.k==='home'?'':r.t+' �
  PX=$$('.px');io&&io.disconnect();io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.1});
  $$('#app .rv').forEach(e=>io.observe(e));setTimeout(()=>$$('#app header .rv').forEach(e=>e.classList.add('in')),80);
  $$('.q button').forEach(b=>b.onclick=()=>{const q=b.parentElement,d=q.querySelector('div'),o=q.classList.toggle('o');b.setAttribute('aria-expanded',o);d.style.maxHeight=o?d.scrollHeight+'px':0});
- $$('.pc').forEach(c=>{const v=c.querySelector('video');if(v){c.onmouseenter=()=>v.play();c.onmouseleave=()=>v.pause()}});
- const f=$('#cf');if(f)f.onsubmit=e=>{e.preventDefault();const d=new FormData(f);location.href=`mailto:${SITE.email}?subject=${encodeURIComponent('Project enquiry: '+d.get('s'))}&body=${encodeURIComponent(`Name: ${d.get('n')}\nEmail: ${d.get('e')}\n\n${d.get('m')}`)}`};
- $$('.cc').forEach(c=>{const v=c.querySelector('video');if(v){c.onmouseenter=()=>v.play().catch(()=>{});c.onmouseleave=()=>{v.pause();v.currentTime=0}}});
- $$('.vc').forEach(c=>{const v=c.querySelector('video');if(!v)return;c.onmouseenter=()=>v.play().catch(()=>{});c.onmouseleave=()=>{v.pause();v.currentTime=0}});
- csBind();onS();svTick();fxPaint()}
+  const f=$('#cf');if(f)f.onsubmit=e=>{e.preventDefault();const d=new FormData(f);location.href=`mailto:${SITE.email}?subject=${encodeURIComponent('Project enquiry: '+d.get('s'))}&body=${encodeURIComponent(`Name: ${d.get('n')}\nEmail: ${d.get('e')}\n\n${d.get('m')}`)}`};
+  VM.bind();onS();svTick();fxPaint()}
 function go(h,first){const r=resolve(h);if(r.k===cur&&!first)return;cur=r.k;
  if(first||rm){paint(r);return}
  const pt=$('.ptn');pt.style.setProperty('--px',(window._px??innerWidth/2)+'px');pt.style.setProperty('--py',(window._py??innerHeight/2)+'px');window._px=window._py=undefined;pt.classList.remove('off');void pt.offsetWidth;pt.classList.add('on');app.classList.add('out');setTimeout(()=>{paint(r);L?L.scrollTo(0,{immediate:true}):scrollTo(0,0);scrollTo(0,0);app.classList.remove('out');pt.classList.remove('on');pt.classList.add('off');setTimeout(()=>pt.classList.remove('off'),800)},760)}
@@ -948,11 +991,12 @@ document.addEventListener('click',e=>{
 
 /* scroll-driven services */
 const svEase=t=>t*t*(3-2*t);
+const pinOff=matchMedia('(max-width:1000px),(max-height:640px),(prefers-reduced-motion:reduce)');
 function svTick(){const el=$('#svpin');if(!el)return;const st=el.firstElementChild,cs=$$('#svpin .sc');
- if(getComputedStyle(st).position!=='sticky'){cs.forEach(c=>c.style.removeProperty('--o'));return}
+ if(pinOff.matches){if(!st._off){st._off=1;cs.forEach(c=>c.style.removeProperty('--o'))}return}st._off=0;
  const r=el.getBoundingClientRect(),tot=r.height-innerHeight,p=Math.min(1,Math.max(0,-r.top/tot)),u=Math.min(1,Math.max(0,(p-.03)/.82))*cs.length;
  cs.forEach((c,i)=>c.style.setProperty('--o',svEase(Math.min(1,Math.max(0,u-i))).toFixed(3)))}
-addEventListener('scroll',svTick,{passive:true});addEventListener('resize',svTick);
+SCR.push(svTick);
 
 
 /* ===== animated icon set ===== */
@@ -983,22 +1027,56 @@ function countUp(){const o=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isI
 /* ===== premium FX layer ===== */
 const fine=matchMedia('(hover:hover) and (pointer:fine)').matches,touch=matchMedia('(hover:none)').matches;
 (function(){const b=document.createElement('div');b.className='spb';document.body.appendChild(b);const p=document.createElement('div');p.className='ptn';p.innerHTML='<i></i><b></b>';addEventListener('pointerdown',e=>{window._px=e.clientX;window._py=e.clientY},true);document.body.appendChild(p);
- const nv=$('nav');let t=0;const f=()=>{t=0;const h=document.documentElement.scrollHeight-innerHeight;b.style.setProperty('--p',h>0?Math.min(1,scrollY/h):0);nv.classList.toggle('sc2',scrollY>40);
-  if(!rm){const y=scrollY;$$('.fx i').forEach((e,k)=>{e.style.transform=`translate3d(0,${y*[-.05,.07,-.09,.04][k]}px,0)`})}};
- addEventListener('scroll',()=>{if(!t){t=1;requestAnimationFrame(f)}},{passive:true});f()})();
+ const nv=$('nav'),bl=$$('.fx i'),K=[-.05,.07,-.09,.04];let lp=-1,ls=-1;
+ const f=()=>{const y=scrollY,h=document.documentElement.scrollHeight-innerHeight,p=h>0?Math.min(1,y/h):0;if(p!==lp){lp=p;b.style.setProperty('--p',p)}const sc=y>40;if(sc!==ls){ls=sc;nv.classList.toggle('sc2',sc)}
+  if(!rm)bl.forEach((e,k)=>{e.style.transform=`translate3d(0,${y*K[k]}px,0)`})};
+ SCR.push(f);f()})();
 /* split headlines into masked words */
 function splitH(el){if(el.dataset.sp||rm)return;el.dataset.sp=1;let wi=0;
  const mk=(w,g)=>`<span class="sw"><span${g?' class="grad"':''} style="--wi:${wi++}">${w}</span></span>`;
  const walk=(n,g)=>{let o='';n.childNodes.forEach(c=>{if(c.nodeType===3){o+=c.textContent.split(/(\s+)/).map(t=>/^\s+$/.test(t)?' ':t?mk(t,g):'').join('')}else if(c.nodeType===1){if(c.classList.contains('grad'))o+=walk(c,true);else if(c.tagName==='BR')o+='<br>';else o+=c.outerHTML}});return o};
  el.setAttribute('aria-label',el.textContent.replace(/\s+/g,' ').trim());el.innerHTML=walk(el,false);el.classList.add('sp-h')}
-/* touch devices: play previews that are on screen */
-let vio;function vidAuto(){vio&&vio.disconnect();if(!touch||rm)return;
- vio=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(e.isIntersecting){if(!v._user)v.play().catch(()=>{})}else v.pause()}),{threshold:.5});
- $$('#app .vm video,#app .cm video,#app .cx-stage video,#app .hv video').forEach(v=>{v.muted=true;v.setAttribute('playsinline','');v.preload='metadata';vio.observe(v)})}
+/* ===== video manager =====
+   - a video gets its poster/src only when it is near the viewport (never all at once)
+   - touch devices: previews autoplay only while >=50% visible, max 2 (phones) / 3 (tablets) at a time
+   - videos that scroll far away are unloaded (frees network, memory and hardware decoders)
+   - everything pauses while a viewer/menu is open or the tab is hidden; Save-Data / 2G = no autoplay */
+const VM=(()=>{
+ const SEL='#app .vm video,#app .cm video,#app .cx-stage video,#app .th video',
+  cn=navigator.connection||{},lowData=!!(cn.saveData||/(^|-)2g$/.test(cn.effectiveType||'')),
+  auto=touch&&!rm&&!lowData,vis=new Set();let near,far,view;
+ const held=()=>document.hidden||document.body.style.overflow==='hidden',
+  cap=()=>innerWidth<700?2:3,
+  prep=v=>{if(v._vm)return;v._vm=1;v.muted=true;v.defaultMuted=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.disablePictureInPicture=true},
+  ensure=v=>{const u=v.dataset.src;if(u&&!v.getAttribute('src'))v.src=u},
+  play=v=>{prep(v);ensure(v);const p=v.play();if(p&&p.catch)p.catch(()=>{})},
+  unload=v=>{if(!v.getAttribute('src'))return;v.pause();v.removeAttribute('src');v.load()};
+ function rebalance(){if(!auto)return;const arr=[...vis];if(held()){arr.forEach(v=>v.pause());return}
+  const mid=innerHeight/2,R=arr.map(v=>{const r=v.getBoundingClientRect();return[v,Math.abs((r.top+r.bottom)/2-mid)]}).sort((a,b)=>a[1]-b[1]),n=cap();
+  R.forEach(([v],i)=>{if(i<n){if(v.paused)play(v)}else if(!v.paused)v.pause()})}
+ function scan(){[near,far,view].forEach(o=>o&&o.disconnect());vis.clear();
+  const V=$$(SEL);if(!V.length)return;
+  if(!('IntersectionObserver' in window)){V.forEach(v=>{if(v.dataset.poster)v.poster=v.dataset.poster});return}
+  near=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const v=e.target;near.unobserve(v);if(v.dataset.poster&&!v.getAttribute('poster'))v.poster=v.dataset.poster}),{rootMargin:'100% 0px'});
+  far=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting){vis.delete(e.target);unload(e.target)}}),{rootMargin:'150% 0px'});
+  V.forEach(v=>{prep(v);near.observe(v);far.observe(v)});
+  if(auto){view=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)vis.add(e.target);else{vis.delete(e.target);e.target.pause()}});rebalance()},{threshold:.5});V.forEach(v=>view.observe(v))}}
+ /* mouse devices: preview plays on hover (unchanged behaviour), but the file is only requested then */
+ function bind(){if(touch)return;$$('#app .pc,#app .cc,#app .vc,#app .csc').forEach(c=>{const v=c.querySelector('video');if(!v)return;const keep=c.classList.contains('pc');
+  c.onmouseenter=()=>play(v);c.onmouseleave=()=>{v.pause();if(!keep)v.currentTime=0}})}
+ function sync(){rebalance();const h=document.querySelector('.hv video');
+  if(h&&h._a){if(document.hidden||(touch&&held()))h.pause();else if(h._vis&&!h._user&&!rm){const p=h.play();if(p&&p.catch)p.catch(()=>{})}}}
+ return{scan,bind,sync}})();
+new MutationObserver(()=>VM.sync()).observe(document.body,{attributes:true,attributeFilter:['style']});
+document.addEventListener('visibilitychange',()=>VM.sync());
+/* pause continuous CSS animations while their element is off-screen */
+let apz;function animPause(){apz&&apz.disconnect();if(!('IntersectionObserver' in window))return;
+ apz=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('pz',!e.isIntersecting)),{rootMargin:'80px 0px'});
+ $$('#app .gs,#app .grad,#app .mqt,#app .ai,#app .oi,#app .vp,#app .cx-play,#app .cpl span,#app .box li,#app .pk li,#app .btn i,#app .cx-bd .more i').forEach(e=>apz.observe(e))}
 function fxPaint(){
  $$('#app h1,#app .hd h2,#app .cta h2').forEach(h=>{splitH(h);if(!h.classList.contains('rv')&&io)io.observe(h)});countUp();
  $$('#app .sc,#app .opt,#app .pk,#app .wc,#app .ps,#app .box,#app .csc,#app .cta,#app .fq,#app .cx-cta').forEach(e=>e.classList.add('gl'));
- vidAuto();
+ VM.scan();animPause();
  if(fine&&!rm){
   $$('#app .vc .vm,#app .cc .cm').forEach(m=>{if(m._t)return;m._t=1;const c=m.parentElement;
    c.addEventListener('pointermove',e=>{const r=m.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;m.style.setProperty('--ry',(x*9).toFixed(2)+'deg');m.style.setProperty('--rx',(-y*9).toFixed(2)+'deg')});
@@ -1013,10 +1091,12 @@ if(fine&&!rm){const a=document.createElement('div'),b=document.createElement('di
 const bgr=$('#bgr'),mn=$('#menu');function tg(o){bgr.setAttribute('aria-expanded',o);mn.classList.toggle('open',o);mn.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':''}
 bgr.onclick=()=>tg(bgr.getAttribute('aria-expanded')!=='true');addEventListener('hashchange',()=>{if(bgr.getAttribute('aria-expanded')==='true')tg(false)});
 /* scroll / parallax */
-let tk=0;function onS(){tk=0;if(rm)return;const y=scrollY;PX.forEach(o=>{const s=+o.dataset.s;o.style.transform=`translate3d(${mx*s*-260}px,${y*s*-1+my*s*-200}px,0)`});const im=$('.fp img');if(im){const q=im.parentElement.getBoundingClientRect();if(q.bottom>0&&q.top<innerHeight)im.style.transform=`translateY(${-(q.top/innerHeight)*5}%)`}}
-addEventListener('scroll',()=>{if(!tk){tk=1;requestAnimationFrame(onS)}},{passive:true});
-addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;if(!tk){tk=1;requestAnimationFrame(onS)}},{passive:true});
-try{if(!rm&&window.Lenis){L=new Lenis({lerp:.085,wheelMultiplier:.9});(function f(t){L.raf(t);requestAnimationFrame(f)})(0);document.documentElement.classList.add('lenis')}}catch(_){}
+let tk=0;function onS(){tk=0;if(rm)return;const y=scrollY,im=$('.fp img'),q=im?im.parentElement.getBoundingClientRect():null;
+ PX.forEach(o=>{const s=+o.dataset.s;o.style.transform=`translate3d(${mx*s*-260}px,${y*s*-1+my*s*-200}px,0)`});
+ if(q&&q.bottom>0&&q.top<innerHeight)im.style.transform=`translateY(${-(q.top/innerHeight)*5}%)`}
+SCR.push(onS);
+if(!touch)addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;if(!tk){tk=1;requestAnimationFrame(onS)}},{passive:true});
+try{if(!rm&&!touch&&window.Lenis){L=new Lenis({lerp:.085,wheelMultiplier:.9});(function f(t){L.raf(t);requestAnimationFrame(f)})(0);document.documentElement.classList.add('lenis')}}catch(_){}
 
 /* website portfolio: new images fill empty slots; leftovers are added at the end */
 (function(){const W=VIDEOS["website-design"],X=["media/web-img-09.jpg","media/web-img-10.jpg","media/web-img-11.jpg"];
@@ -1030,18 +1110,26 @@ go(location.hash,1);
 
 /* hero video: blob url (works in Safari/mobile), autoplay on load + scroll, sound toggle */
 function hvURL(){return 'media/hero-saas.mp4'}
-function hvFx(){const s=document.getElementById('hvs');if(!s)return;if(matchMedia('(prefers-reduced-motion:reduce)').matches){s.style.transform='none';s.style.opacity=1;return}const r=s.getBoundingClientRect(),vh=innerHeight;let p=Math.min(1,Math.max(0,(vh-r.top)/(vh*.6)));p=p*p*(3-2*p);s.style.transform='translate3d(0,'+((1-p)*70).toFixed(1)+'px,0) scale('+(.84+.16*p).toFixed(3)+')';s.style.opacity=(.3+.7*p).toFixed(2)}
-let _hvR=0;const hvQ=()=>{if(_hvR)return;_hvR=requestAnimationFrame(()=>{_hvR=0;hvFx()})};addEventListener('scroll',hvQ,{passive:true});addEventListener('resize',hvQ);
-function hvSetup(){const v=document.querySelector('.hv video');if(!v||v._a)return;v._a=1;v.muted=true;v.loop=true;v.setAttribute('playsinline','');v.src=hvURL();v.load();
- const go=()=>{if(v._user)return;const p=v.play();if(p&&p.catch)p.catch(()=>{})};const pl=document.querySelector('.hv-pl');const go2=()=>{if(v._user)return;const p=v.play();if(p&&p.catch)p.catch(()=>{if(pl)pl.hidden=false})};v.addEventListener('playing',()=>{if(pl)pl.hidden=true});if(pl)pl.onclick=()=>{v.play().catch(()=>{})};v.addEventListener('canplay',go2,{once:true});go2();hvFx();
- new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)go();else v.pause()}),{threshold:.15}).observe(v);
- ['touchstart','pointerdown','scroll','keydown'].forEach(ev=>addEventListener(ev,()=>{if(v.paused&&v.getBoundingClientRect().top<innerHeight)go()},{passive:true}))}
+function hvFx(){const s=document.getElementById('hvs');if(!s)return;if(rm){if(!s._d){s._d=1;s.style.transform='none';s.style.opacity=1}return}const r=s.getBoundingClientRect(),vh=innerHeight;let p=Math.min(1,Math.max(0,(vh-r.top)/(vh*.6)));p=p*p*(3-2*p);const t='translate3d(0,'+((1-p)*70).toFixed(1)+'px,0) scale('+(.84+.16*p).toFixed(3)+')',o=(.3+.7*p).toFixed(2);if(s._k!==t+o){s._k=t+o;s.style.transform=t;s.style.opacity=o}}
+SCR.push(hvFx);
+function hvSetup(){const v=document.querySelector('.hv video');if(!v||v._a)return;v._a=1;v.muted=true;v.loop=true;v.setAttribute('playsinline','');
+ const pl=document.querySelector('.hv-pl'),held=()=>document.hidden||(touch&&document.body.style.overflow==='hidden');
+ /* plays only while visible (the old scroll/gesture handler could restart it off-screen) */
+ const go=shw=>{if(v._user||!v._vis||held())return;if(rm){if(pl)pl.hidden=false;return}const p=v.play();if(p&&p.catch)p.catch(()=>{if(shw&&pl)pl.hidden=false})};
+ let on=0;const start=()=>{if(on)return;on=1;v.preload='auto';v.src=hvURL();v.load();v.addEventListener('canplay',()=>go(1),{once:true})};
+ v.addEventListener('playing',()=>{if(pl)pl.hidden=true});
+ if(pl)pl.onclick=()=>{v.play().catch(()=>{})};
+ hvFx();
+ new IntersectionObserver(es=>es.forEach(x=>{v._vis=x.isIntersecting;if(x.isIntersecting){start();go(1)}else v.pause()}),{threshold:.15}).observe(v);
+ /* phones: the hero video sits below the fold, so don't fetch it until it is close */
+ if(touch)new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){o.disconnect();start()}},{rootMargin:'600px 0px'}).observe(v);else start();
+ ['touchstart','pointerdown','keydown'].forEach(ev=>addEventListener(ev,()=>{if(v.paused)go()},{passive:true}))}
 document.addEventListener('click',e=>{const b=e.target.closest('.hv-pp');if(!b)return;const v=b.parentElement.querySelector('video');if(v.paused){v._user=0;v.play().catch(()=>{});b.classList.remove('is-paused')}else{v._user=1;v.pause();b.classList.add('is-paused')}b.setAttribute('aria-label',v._user?'Play video':'Pause video')});
 document.addEventListener('click',e=>{const b=e.target.closest('.hv-snd');if(!b)return;const v=b.parentElement.querySelector('video');v.muted=!v.muted;b.textContent=v.muted?'🔇':'🔊';b.setAttribute('aria-label',v.muted?'Turn sound on':'Turn sound off');if(v.paused)v.play().catch(()=>{})});
 function trSetup(){document.querySelectorAll('.trust-n:not([data-r])').forEach(el=>{el.dataset.r=1;const to=+el.dataset.to,rm=matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm){el.textContent=to+'+';return}
  new IntersectionObserver((es,o)=>{if(!es[0].isIntersecting)return;o.disconnect();const t0=performance.now()+500,d=2000;const f=t=>{const p=Math.min(Math.max((t-t0)/d,0),1);el.textContent=Math.round(to*(1-Math.pow(1-p,3)))+'+';if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)},{threshold:.4}).observe(el)})}
-new MutationObserver(trSetup).observe(document.body,{childList:true,subtree:true});trSetup();
-new MutationObserver(hvSetup).observe(document.body,{childList:true,subtree:true});hvSetup();
+new MutationObserver(trSetup).observe(app,{childList:true});trSetup();
+new MutationObserver(hvSetup).observe(app,{childList:true});hvSetup();
 </script><!-- ===== VidMark AI Chat Widget ===== -->
 <style>
 .vmc,.vmc *{box-sizing:border-box;cursor:auto!important;letter-spacing:0}
@@ -1099,8 +1187,37 @@ body:has(.lb.open) .vmc{display:none}
 const CHAT_API="";
 const IG="https://www.instagram.com/vidmark_studio?psln=OXk1bjk3d2FjNXJ2",MAIL="contact.vidmarkstudio@gmail.com",TEL="01783472152";
 const CTA=`<br><br>Want to start? <a href="${IG}" target="_blank" rel="noopener">Message us on Instagram</a> or email <a href="mailto:${MAIL}">${MAIL}</a>.`;
+const IDEAS=[
+"🎬 <b>Short-form video editing agency</b> — edit Reels/Shorts for creators, coaches and brands on a monthly retainer. Startup cost is mostly a good laptop and strong editing skills.",
+"🧑‍💻 <b>UGC video service</b> — make authentic, creator-style product videos for brands that run social ads.",
+"📣 <b>Social media management for local businesses</b> — restaurants, clinics, gyms and shops need steady posts, Reels and ad creatives.",
+"🌐 <b>Landing-page studio for small businesses</b> — clean one-page sites with domain and hosting included, sold as a fixed-price package.",
+"🛒 <b>Niche online store</b> — pick one narrow niche, build a clean store and test it with short video ads before scaling.",
+"🎓 <b>Online course or coaching</b> — package a skill you already have (editing, design, languages, fitness) into a simple course or cohort.",
+"🧩 <b>Template &amp; preset shop</b> — sell Canva/CapCut/Premiere templates, LUTs, sound packs or Notion systems.",
+"🎙️ <b>Podcast clipping service</b> — turn long episodes into Shorts that bring new listeners.",
+"🏠 <b>Real-estate video tours</b> — vertical walkthrough Reels for agents and developers.",
+"🍱 <b>Home-based food brand</b> — tiffin, bakery or snacks with strong branding and Facebook/Instagram marketing.",
+"🧾 <b>Productized design service</b> — fixed-price packages such as logo + brand kit delivered in a set number of days.",
+"📺 <b>Faceless YouTube channel</b> — educational or story content with voiceover and stock footage. It needs patience and a realistic plan for monetization.",
+"👕 <b>Print-on-demand brand</b> — T-shirts or mugs built around one community or interest."];
+const pick=(arr,n)=>{const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,n)};
 const KB=[
-{k:/\b(hi|hello|hey|salam|assalam|hola)\b|kemon|kmn/i,a:"Hey! 👋 I’m the VidMark Studio assistant. I can help with pricing, services, timelines and how to get started. What are you working on?"},
+{k:/how\s?(are|r)\s?(you|u|ya)\b|how('?s| is) it going|what'?s up|wassup|\bsup\b|kemon\s?(acho|achen|aso|ase|achis)|kmn\s?(acho|achen|aso)|\bki khobor|khobor ki|কেমন\s?আ(ছ|ছেন|ছিস)|কি খবর/i,a:"I’m doing great, thanks for asking! 😊 Hope you’re doing well too. How can I help today — pricing, services, a business idea, or just a chat?"},
+{k:/^\s*(i'?m\s|i am\s)?(fine|good|great|well|not bad|doing (good|well|great)|alhamdulillah|ami bhalo|bhalo(i)? achi|valo achi|ভালো(ই)? আছি)\b[\s.!,?]*(too|and you|how about you|thanks|thank you)?[\s.!,?]*$/i,a:"Glad to hear that! 😊 So, what can I help you with — pricing, our services, or a business idea?"},
+{k:/\b(hi+|hello+|hey+|heya|salam|assalamu?\s?alaikum|assalam|hola|yo)\b|good\s(morning|afternoon|evening)|হাই|হ্যালো|হেলো|সালাম|আসসালামু/i,a:"Hi there! 👋 Welcome to VidMark Studio. I can help with pricing, services, timelines, business or content ideas — or just chat. What are you working on?"},
+{k:/who are you|what are you|your name|tumi ke\b|tomar nam|apni ke\b|আপনি কে|তুমি কে|তোমার নাম|are you (a |an )?(bot|human|real|ai|robot)|\bbot naki|\bai naki/i,a:"I’m the VidMark Studio assistant 🤖 — an automated chat helper. I can answer questions about our work, share ideas, and point you to the team (founded by <b>Meharab Mahin</b>) when you want a real person."},
+{k:/what can you do|how can you help|can you help|help me|^\s*help\s*[.!?]*$|ki ki pare|ki korte paro|সাহায্য/i,a:"Here’s what I can do 😊<br>• Pricing &amp; packages (video and website)<br>• Our services, process and timelines<br>• <b>Business ideas</b> and <b>content/video ideas</b><br>• Contact details — and a little small talk!<br><br>Just type your question."},
+{k:/(video|content|youtube|reel|shorts?|tiktok|post).{0,25}\bideas?\b|\bideas?\b.{0,25}(video|content|youtube|reel|shorts?|tiktok|post)|content ideas?/i,a:()=>`Here are some content ideas that work well 🎬<br>• <b>Before / after</b> — show a transformation in 10 seconds<br>• <b>3 mistakes to avoid</b> in your niche<br>• <b>Myth vs fact</b> — bust a common belief<br>• <b>Behind the scenes</b> / a day in the life<br>• <b>Customer story</b> — result first, process second<br>• <b>Quick tutorial</b> — one tip, one minute<br><br>Start each one with a strong hook in the first 2 seconds. We can edit these into scroll-stopping Shorts — see the <a href="#work-shorts-reels">Shorts &amp; Reels portfolio</a>.`},
+{k:/business\s?ideas?|startup\s?ideas?|\bideas?\b|side\s?(hustle|business|income)|what (business|should i start)|start(ing)? a business|\bearn|make money|online income|\bincome\b|\bfreelanc|ব্যবসা|বিজনেস|আইডিয়া|ইনকাম|bebsha|babsha|biznes|business\s?(korte|kora|korbo|start|shuru|er)|ami business|business chai/i,a:()=>`Here are 3 business ideas to consider 💡<br><br>`+pick(IDEAS,3).map(x=>x).join('<br><br>')+`<br><br><small>No idea is guaranteed — test with a few real customers before spending much. Ask “another idea” for more.</small><br><br>If your idea needs <b>videos, branding or a website</b>, that’s exactly what VidMark does. <a href="#services">See our services</a>.`},
+{k:/joke|funny|hasao|হাসাও|মজা/i,a:()=>pick(["Why did the video editor break up with the timeline? Too many cuts. ✂️😄","Why was the camera so calm? It always knew how to stay in focus. 📷😄","I told my computer I needed a break… now it keeps showing me the rendering bar. 😅"],1)[0]},
+{k:/\b(lol|haha+|hehe+|lmao)\b|😂|🤣|😄/i,a:"😄 Glad that made you smile! Anything else I can help with?"},
+{k:/love you|i like you|ভালোবাসি/i,a:"Aww, thank you! 😊 I’m just a chat assistant, but our team really does love making great videos. How can I help?"},
+{k:/good\s?night|\bgn\b/i,a:"Good night! 🌙 Talk soon."},
+{k:/where.*(you|studio|based|located|office)|\blocation\b|kothay|কোথায়/i,a:`VidMark Studio is based in <b>Bangladesh</b> and works online with clients. You can reach us on <a href="${IG}" target="_blank" rel="noopener">Instagram</a> or at ${MAIL}.`},
+{k:/weather|what time|time now|today'?s date|\bnews\b|\bscore\b|stock price/i,a:"I can’t check live info like weather, time or news 🙈 — but I’m happy to help with pricing, services, or business and content ideas!"},
+{k:/^\s*(ok+|okay|k|hmm+|hm+|yes|yeah|yep|sure|cool|acha|accha|thik ache|ঠিক আছে|আচ্ছা)\s*[.!]*\s*$/i,a:"👍 Anything else you’d like to know?"},
+{k:/\bsorry\b|\bsry\b/i,a:"No worries at all! 😊 How can I help?"},
 {k:/(web|site|landing|wordpress|shopify|ecommerce|e-commerce|real estate|lms|portal).*(pric|cost|packag|how much|koto)|(pric|cost|packag|how much|koto).*(web|site|landing)/i,a:`Website design packages: Landing Page <b>from $135</b> · Portfolio <b>$220</b> · WordPress Business <b>$350</b> · Custom UI/UX <b>$499</b> · E-commerce <b>$499</b> · News Portal <b>$499</b> · Education/LMS <b>$599</b> · Booking &amp; Membership <b>$599</b> · Corporate <b>$699</b> · Real Estate <b>$899</b> · SaaS Marketing <b>$1,000</b> · Custom Web App/SaaS MVP <b>$1,600</b>. Final pricing is flexible based on your scope. <a href="#pricing-web">See all website packages</a>.`+CTA},
 {k:/team|editors?\b|designers?\b|strategist|manager|how many/i,a:`Our in-house team: <b>8+ video editors</b> (each with their own editing style), <b>3+ web designers</b>, <b>4 dedicated SaaS video experts</b>, <b>2 brand strategists</b> and <b>1 project manager</b>.`},
 {k:/pric|cost|packag|rate|budget|quote|how much|koto|dam\b|taka|\$/i,a:`Here are our monthly/project packages:<br><br>🎬 <b>YouTube Creator Package: $2,999/mo</b> – 12–15 Shorts + 3–6 Long-Form videos.<br>📣 <b>Social Media Marketing: $999/mo</b> – 20 marketing contents + Facebook Ads creatives.<br>🚀 <b>SaaS Explainer Video: $999</b> – one 30–60 sec explainer, delivered in ~10 days.<br><br>Video packages include unlimited revisions. 🌐 <b>Website design</b> starts from $135 and goes up to $1,600 for custom web apps. See <a href="#pricing-video">video pricing</a> or <a href="#pricing-web">website pricing</a>. Final pricing is flexible, so contact us first to discuss your scope.`+CTA},
@@ -1120,7 +1237,7 @@ const KB=[
 {k:/payment|pay|refund|invoice/i,a:`Payment details are agreed before the project starts. Message us on <a href="${IG}" target="_blank" rel="noopener">Instagram</a> and we’ll sort it out together.`},
 {k:/thank|thanks|tnx|dhonnobad|great|awesome|nice/i,a:"You’re welcome! 😊 Anything else I can help with?"},
 {k:/bye|goodbye|see you/i,a:"Thanks for stopping by! Talk soon. 👋"}];
-const FALL=`Good question! For something this specific, the team can answer best. Reach us on <a href="${IG}" target="_blank" rel="noopener">Instagram</a> or <a href="mailto:${MAIL}">email</a>. Meanwhile, I can help with pricing, services, timelines or our process.`;
+const FALL=`Hmm, I’m not fully sure about that one 🤔 I’m best with pricing, services, timelines, and business or content ideas. For anything more specific, the team can help directly on <a href="${IG}" target="_blank" rel="noopener">Instagram</a> or by <a href="mailto:${MAIL}">email</a>.`;
 const chips=["Pricing","Services","How to start","Contact"];
 const $=s=>document.querySelector(s),root=$('#vmc'),b=$('#vmb'),inp=$('#vmi'),snd=$('#vms');
 const hist=[];let greeted=0;
@@ -1130,12 +1247,12 @@ function bot(h,q){const r=document.createElement('div');r.className='vmc-r';r.in
  if(q){const c=document.createElement('div');c.className='vmc-q';q.forEach(t=>{const x=document.createElement('button');x.textContent=t;x.onclick=()=>{c.remove();send(t)};c.append(x)});b.append(c)}scr()}
 function user(t){const u=document.createElement('div');u.className='vmc-u';u.textContent=t;b.append(u);scr()}
 function typing(){const r=document.createElement('div');r.className='vmc-r';r.innerHTML='<span class="vmc-av"></span><div class="vmc-t"><i></i><i></i><i></i></div>';b.append(r);scr();return r}
-function local(t){let best=null,sc=0;KB.forEach(e=>{const m=t.match(new RegExp(e.k.source,'gi'));if(m&&m.length>=sc){if(m.length>sc||!best){best=e;sc=m.length}}});return best?best.a:FALL}
+function local(t){let best=null,sc=0;KB.forEach(e=>{const m=t.match(new RegExp(e.k.source,'gi'));if(m&&m.length>=sc){if(m.length>sc||!best){best=e;sc=m.length}}});return best?(typeof best.a==='function'?best.a():best.a):FALL}
 async function answer(t){
  if(CHAT_API){try{const r=await fetch(CHAT_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist.slice(-10)})});const d=await r.json();if(d.reply)return d.reply.replace(/</g,'&lt;').replace(/\n/g,'<br>')}catch(e){}}
  return local(t)}
 async function send(t){t=t.trim();if(!t)return;b.querySelectorAll('.vmc-q').forEach(x=>x.remove());user(t);hist.push({role:'user',content:t});inp.value='';snd.classList.remove('on');
- const ty=typing(),a=await answer(t);await new Promise(r=>setTimeout(r,500+Math.min(a.length,300)*3));ty.remove();hist.push({role:'assistant',content:a.replace(/<[^>]+>/g,' ')});bot(a)}
+ const ty=typing(),a=await answer(t);await new Promise(r=>setTimeout(r,500+Math.min(a.length,300)*3));ty.remove();hist.push({role:'assistant',content:a.replace(/<[^>]+>/g,' ')});bot(a,a===FALL?["Pricing","Business idea","Services","Contact"]:null)}
 function open(o){root.classList.toggle('open',o);if(o&&!greeted){greeted=1;setTimeout(()=>bot("Hey! How can I help you?",chips),250)}if(o)setTimeout(()=>inp.focus(),300)}
 $('#vmo').onclick=()=>open(!root.classList.contains('open'));$('#vmx').onclick=()=>open(false);
 $('#vmf').onsubmit=e=>{e.preventDefault();send(inp.value)};inp.oninput=()=>snd.classList.toggle('on',!!inp.value.trim());
